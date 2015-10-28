@@ -17,6 +17,9 @@ def docsplit(doc):
 
     return doclist
 
+def splitby
+    
+
 def lex(doc):
     doclist = docsplit(doc)
 
