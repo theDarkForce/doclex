@@ -18,6 +18,52 @@ def docsplit(doc):
 
     return doclist
 
+keykorks = [u"大灰狼",u"小白兔"]
+
+def splitbykeyworks(str):
+    strlist = [str]
+    for word in keykorks:
+        words = []
+        for str in strlist:
+            r = str.split(word)
+            for s in r:
+                if s != "":
+                    words.append(s)
+                else:
+                    words.append(word)
+        strlist = words
+
+    return strlist
+
+dec1 = [u'是',u'乃']
+dec2 = [u'不是']
+dec1filte = [u'不是',u'是的']
+
+def splitbydec(str):
+    words = []
+
+    strdoc = str.split(dec2[0]);
+
+    for str in strdoc:
+        tmp = ""
+        index = 0
+        for i in range(len(str)):
+            ch = str[i]
+            tmp += ch
+            if ch == u'是':
+                if str[i-1:i+1] == dec1filte[0]:
+                    continue
+                if str[i:i+2] == dec1filte[1]:
+                    continue
+
+            if ch in dec1:
+                words.append(str[index:i+1])
+                index = i+1
+                tmp = ""
+        if tmp != "":
+            words.append(tmp)
+    return words
+
 classifier = [u'匹',u'张',u'座',u'回',u'场',u'尾',u'条',u'个',u'首',u'阙',u'阵',u'网',u'炮',u'顶',u'丘',u'棵',
               u'只',u'支',u'袭',u'辆',u'挑',u'担',u'颗',u'壳',u'窠',u'曲',u'墙',u'群',u'腔',u'砣',u'座',u'客',
               u'贯',u'扎',u'捆',u'刀',u'令',u'打',u'手',u'罗',u'坡',u'山',u'岭',u'江',u'溪',u'钟',u'队',u'单',
@@ -102,25 +148,18 @@ def lex(doc):
 
     doclist = docsplit(doc)
 
-    def splitbyclassifierlist(strlist):
+    def splitlistbylambda(strlist, fn):
         ret = []
         for str in strlist:
-            ret.extend(splitbyclassifier(str))
+            ret.extend(fn(str))
         return ret
 
-    doclist = splitbyclassifierlist(doclist)
-
-    def splitbyadjectivelist(strlist):
-        ret = []
-        for str in strlist:
-            ret.extend(splitbyadjective(str))
-        return ret
-
-    doclist = splitbyadjectivelist(doclist)
+    doclist = splitlistbylambda(doclist, splitbykeyworks)
+    doclist = splitlistbylambda(doclist, splitbydec)
+    doclist = splitlistbylambda(doclist, splitbyclassifier)
+    doclist = splitlistbylambda(doclist, splitbyadjective)
 
     keywords.extend(doclist)
-
-
 
     return keywords
 
