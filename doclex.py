@@ -4,6 +4,9 @@
 # autor: qianqians
 import chardet
 
+def splityspace(keys):
+    return keys.split(' ')
+
 def docsplit(doc):
     doclist = doc.split('.')
 
@@ -163,5 +166,5 @@ def lex(doc):
 
     return keywords
 
-for str in lex("中国是一个伟大的古老的地大物博的国家"):
-    print str
+#for str in lex("中国是一个伟大的古老的地大物博的国家"):
+#    print str
