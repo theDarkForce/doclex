@@ -7,6 +7,30 @@ import chardet
 def splityspace(keys):
     return keys.split(' ')
 
+punctuations = [u'.',u',',u'[',u']',u'{',u'}',u'"',u'\'',u';',u':',u'<',u'>',u'?',u'?',u'(',u')',u'*',u'&',u'^',u'%',u'$',u'#',u'@',u'!',u'~',u'`',
+                u'，',u'》',u'。',u'《',u'？',u'/',u'：',u'；',u'“',u'‘',u'{',u'}',u'、',u'|',u'\r',u'\n',u'\0',u'\t',u' ',u'   ']
+
+def simplesplit(str):
+    try:
+        encoding = chardet.detect(str)
+        str = unicode(str, encoding['encoding'])
+
+        keys = []
+        key = ''
+        for ch in str:
+            if ch in punctuations or ch == ' ':
+                if key != '':
+                    keys.append(key)
+                    key = ''
+            else:
+                key += ch
+        if len(keys) == 0:
+            keys.append(key)
+        return keys
+    except:
+        #print str
+        pass
+
 def docsplit(doc):
     doclist = doc.split('.')
 
@@ -101,9 +125,6 @@ def splitbyclassifier(str):
         words.append(tmp)
     return words
 
-punctuations = [u'.',u',',u'[',u']',u'{',u'}',u'"',u'\'',u';',u':',u'<',u'>',u'?',u'?',u'(',u')',u'*',u'&',u'^',u'%',u'$',u'#',u'@',u'!',u'~',u'`',
-                u'，',u'》',u'。',u'《',u'？',u'/',u'：',u'；',u'“',u'‘',u'{',u'}',u'、',u'|']
-
 def specialword(str):
     if len(str) < 32:
         for ch in str:
@@ -146,17 +167,18 @@ def lex(doc):
 
     keywords = []
 
-    if specialword(doc):
-        keywords.append(doc)
-
     doclist = docsplit(doc)
 
     def splitlistbylambda(strlist, fn):
-        ret = []
-        for str in strlist:
-            ret.extend(fn(str))
-        return ret
+        try:
+            ret = []
+            for str in strlist:
+                ret.extend(fn(str))
+            return ret
+        except:
+            return strlist
 
+    doclist = splitlistbylambda(doclist, simplesplit)
     doclist = splitlistbylambda(doclist, splitbykeyworks)
     doclist = splitlistbylambda(doclist, splitbydec)
     doclist = splitlistbylambda(doclist, splitbyclassifier)
