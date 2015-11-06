@@ -7,8 +7,23 @@ import chardet
 def splityspace(keys):
     return keys.split(' ')
 
-punctuations = [u'.',u',',u'[',u']',u'{',u'}',u'"',u'\'',u';',u':',u'<',u'>',u'?',u'?',u'(',u')',u'*',u'&',u'^',u'%',u'$',u'#',u'@',u'!',u'~',u'`',
-                u'，',u'》',u'。',u'《',u'？',u'/',u'：',u'；',u'“',u'‘',u'{',u'}',u'、',u'|',u'\r',u'\n',u'\0',u'\t',u' ',u'   ']
+punctuations = [u'.',u',',u'[',u']',u'{',u'}',u'"',u'\'',u';',u':',u'<',u'>',u'!',u'?',u'(',u'（',u'）',u')',u'*',u'&',u'^',u'%',u'$',u'#',u'@',u'!',u'~',u'`',u'☆',
+                u'，',u'》',u'。',u'《',u'？',u'/',u'：',u'；',u'“',u'‘',u'{',u'}',u'、',u'|',u'\r',u'\n',u'\0',u'\t',u' ',u'   ',u'+',u'-',u'=',u'_',u'【', u'】', u'　', u'★',u'　',u'！',u'·']
+
+def inviald_key(key):
+    for ch in key:
+        if ch in punctuations:
+            return True
+    if key == u'':
+        return True
+    return False
+
+def process_key(key):
+    str = u''
+    for ch in key:
+        if ch not in punctuations:
+            str += ch
+    return str
 
 def simplesplit(str):
     try:
@@ -16,20 +31,51 @@ def simplesplit(str):
         str = unicode(str, encoding['encoding'])
 
         keys = []
-        key = ''
+        key = u''
         for ch in str:
-            if ch in punctuations or ch == ' ':
-                if key != '':
+            if ch in punctuations:
+                if not inviald_key(key):
                     keys.append(key)
-                    key = ''
+                    key = u''
             else:
                 key += ch
-        if len(keys) == 0:
+        if key != u'':
             keys.append(key)
+        if len(keys) == 0:
+            key = process_key(str)
+            if key != u'':
+                keys.append(key)
         return keys
     except:
-        #print str
+        #import traceback
+        #traceback.print_exc()
         pass
+
+def simlesplit1(str):
+    try:
+        keys = []
+        key = u''
+        for ch in str:
+            if ch in punctuations:
+                if not inviald_key(key):
+                    keys.append(key)
+                    key = u''
+            else:
+                key += ch
+        if key != u'':
+            keys.append(key)
+        if len(keys) == 0:
+            key = process_key(str)
+            if key != u'':
+                keys.append(key)
+        return keys
+    except:
+        #import traceback
+        #traceback.print_exc()
+        pass
+
+#for str in simplesplit('第二卷　横尸亿万　第九十八章'):
+#    print str
 
 def docsplit(doc):
     doclist = doc.split('.')
@@ -54,7 +100,7 @@ def splitbykeyworks(str):
         for str in strlist:
             r = str.split(word)
             for s in r:
-                if s != "":
+                if s != u"":
                     words.append(s)
                 else:
                     words.append(word)
@@ -72,7 +118,7 @@ def splitbydec(str):
     strdoc = str.split(dec2[0]);
 
     for str in strdoc:
-        tmp = ""
+        tmp = u""
         index = 0
         for i in range(len(str)):
             ch = str[i]
@@ -86,8 +132,8 @@ def splitbydec(str):
             if ch in dec1:
                 words.append(str[index:i+1])
                 index = i+1
-                tmp = ""
-        if tmp != "":
+                tmp = u""
+        if tmp != u"":
             words.append(tmp)
     return words
 
@@ -108,8 +154,8 @@ numlist = [u'一',u'二',u'三',u'四',u'五',u'六',u'七',u'八',u'九',u'十'
 def splitbyclassifier(str):
     words = []
 
-    tmp = ""
-    old = ""
+    tmp = u""
+    old = u""
     for ch in str:
         tmp += ch
         if ch in classifier:
@@ -118,10 +164,10 @@ def splitbyclassifier(str):
                     if tmp[i] not in numlist:
                         words.append(tmp[0:i+1])
                         words.append(tmp[i+1:])
-                        tmp = ""
+                        tmp = u""
                         break
         old = ch
-    if tmp != "":
+    if tmp != u"":
         words.append(tmp)
     return words
 
@@ -138,7 +184,7 @@ adjectivefilte = [u'大地',u'地面',u'地表',u'地底',u'地暖',u'地光',u'
 def splitbyadjective(str):
     words = []
 
-    tmp = ""
+    tmp = u""
     index = 0
     for i in range(len(str)):
         ch = str[i]
@@ -156,8 +202,8 @@ def splitbyadjective(str):
         if ch in adjective:
             words.append(str[index:i+1])
             index = i+1
-            tmp = ""
-    if tmp != "":
+            tmp = u""
+    if tmp != u"":
         words.append(tmp)
     return words
 
@@ -178,13 +224,17 @@ def lex(doc):
         except:
             return strlist
 
-    doclist = splitlistbylambda(doclist, simplesplit)
+    doclist = splitlistbylambda(doclist, simlesplit1)
     doclist = splitlistbylambda(doclist, splitbykeyworks)
     doclist = splitlistbylambda(doclist, splitbydec)
     doclist = splitlistbylambda(doclist, splitbyclassifier)
     doclist = splitlistbylambda(doclist, splitbyadjective)
 
     keywords.extend(doclist)
+
+    for key in keywords:
+        if inviald_key(key):
+            del key
 
     return keywords
 
