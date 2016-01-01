@@ -2,13 +2,35 @@
 # doclex
 # create at 2015/10/27
 # autor: qianqians
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 import chardet
+
+def delspace(str):
+    i = 0
+    while True:
+        if i >= len(str):
+            break
+
+        if str[i] == ' ' or str[i] == '\n' or str[i] == '\r' or str[i] == ' ' or str[i] == '\t' or str[i] == '\0':
+            if i == 0 or str[i-1] == ' ':
+                str = str[0:i] + str[i+1:]
+                continue
+
+        if i < len(str):
+            i += 1
+
+    return str
 
 def splityspace(keys):
     return keys.split(' ')
 
 punctuations = [u'.',u',',u'[',u']',u'{',u'}',u'"',u'\'',u';',u':',u'<',u'>',u'!',u'?',u'(',u'（',u'）',u')',u'*',u'&',u'^',u'%',u'$',u'#',u'@',u'!',u'~',u'`',u'☆',
-                u'，',u'》',u'。',u'《',u'？',u'/',u'：',u'；',u'“',u'‘',u'{',u'}',u'、',u'|',u'\r',u'\n',u'\0',u'\t',u' ',u'   ',u'+',u'-',u'=',u'_',u'【', u'】', u'　', u'★',u'　',u'！',u'·']
+                u'，',u'》',u'。',u'《',u'？',u'/',u'：',u'；',u'“',u'‘',u'{',u'}',u'、',u'|',u'\r',u'\n',u'\0',u'\t',u' ',u'   ',u'+',u'-',u'=',u'_',u'【', u'】',
+                u'　', u'★',u'　',u'！',u'·']
 
 def inviald_key(key):
     for ch in key:
