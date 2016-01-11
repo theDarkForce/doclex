@@ -9,6 +9,14 @@ sys.setdefaultencoding('utf8')
 
 import chardet
 
+def tolower(str1):
+    key = ""
+    for c in str1:
+        if c >= 'A' and c <= 'Z':
+            c = c.lower()
+        key += c
+    return key
+
 def delspace(str):
     i = 0
     while True:
@@ -50,7 +58,10 @@ def process_key(key):
 def simplesplit(str):
     try:
         encoding = chardet.detect(str)
-        str = unicode(str, encoding['encoding'])
+        if encoding['encoding'] is not None:
+            str = unicode(str, encoding['encoding'])
+        else:
+            str = unicode(str, 'utf-8')
 
         keys = []
         key = u''
@@ -227,7 +238,33 @@ def splitbyadjective(str):
             tmp = u""
     if tmp != u"":
         words.append(tmp)
+
     return words
+
+def vaguesplit(str):
+    words = []
+
+    delspace(str)
+
+    for i in range(len(str)):
+        if str[i] not in punctuations:
+            words.append(str[i])
+
+    for i in range(len(str)):
+        if i < len(str) - 1 and str[i] not in punctuations and str[i+1] not in punctuations:
+            words.append(str[i:i+2])
+
+    for i in range(len(str)):
+        if i < len(str) - 2 and str[i] not in punctuations and str[i+1] not in punctuations and str[i+2] not in punctuations:
+            words.append(str[i:i+3])
+
+    for i in range(len(str)):
+        if i < len(str) - 3 and str[i] not in punctuations and str[i+1] not in punctuations and str[i+2] not in punctuations and str[i+3] not in punctuations:
+            words.append(str[i:i+4])
+
+    return words
+
+#print vaguesplit("12345 6789 0976 423878")
 
 def lex(doc):
     encoding = chardet.detect(doc)
@@ -251,8 +288,10 @@ def lex(doc):
     doclist = splitlistbylambda(doclist, splitbydec)
     doclist = splitlistbylambda(doclist, splitbyclassifier)
     doclist = splitlistbylambda(doclist, splitbyadjective)
-
     keywords.extend(doclist)
+
+    doclistv = vaguesplit(doc)
+    keywords.extend(doclistv)
 
     for key in keywords:
         if inviald_key(key):
